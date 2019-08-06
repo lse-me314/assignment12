@@ -1,19 +1,17 @@
-# Lab 12: More text and network analysis
+# Lab 11: Data from the Web
 
-You should clone this repository to get started with this lab.  The URL to clone is [https://github.com/lse-me314/assignment12](https://github.com/lse-me314/assignment12).  **You can find detailed instructions on how to do this [here](https://lse-me314.github.io/instructions).**
-    
+You should clone this repository to get started with this lab.  The URL to clone is [https://github.com/lse-me314/assignment11](https://github.com/lse-me314/assignment11).  **You can find detailed instructions on how to do this [here](https://lse-me314.github.io/instructions).**
+
 ### Resources
-    
-See the tutorials on regular expressions at http://www.regular-expressions.info.
+
+No special resources for this topic beyond the ones already listed on the course handout.
 
 ### Assignment
 
-Work with the file [ME314_assignment12_LASTNAME_FIRSTNAME.Rmd](ME314_assignment12_LASTNAME_FIRSTNAME.Rmd).
+The assignment Rmd file is [here](https://github.com/lse-me314/assignment11/blob/master/me314-assignment11-LASTNAME-FIRSTNAME.Rmd). Note that this file will not compile for you if you just download it on its own because it calls in some image files that are hosted in the github repo. Feel free to delete the lines in the Rmarkdown to get rid of the images while you are working!
 
-### Solution    
+It may be easier to work from the html version of the assignment, which can be found [here](me314-assignment11-LASTNAME-FIRSTNAME.html).
 
-(Will be added Friday 17 August)
+### Solutions
 
-Solution to Assignment 12 as:
-    *  [md rendered as html](https://github.com/lse-me314/assignment8/blob/master/ME314_assignment12_solution.md) 
-*  [RMarkdown](ME314_assignment12_solution.Rmd)  
+Solutions to each assignment will be made available on the next day after each lab.

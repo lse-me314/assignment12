@@ -1,0 +1,284 @@
+---
+title: "Assignment 11 - Data from the Web"
+author: "Jack Blumenau"
+output: html_document
+---
+
+You will need to load the following library (you may need to use `install.packages()` first):
+```{r, eval=T, message = F}
+library(RedditExtractoR)
+library(RJSONIO)
+library(rvest)
+library(quanteda)
+```
+
+1. `RedditExtractoR` is an R wrapper for the [reddit API](https://www.reddit.com/dev/api). 
+
+1. `RJSONIO` is a package that allows conversion to and from data in Javascript object notation (JSON) format.
+
+1. `rvest` is a nice package which helps you to scrape information from web pages.
+
+1. If you don't know what `quanteda` is by now, what have you been doing for the past two days?
+
+## Using an API
+
+An Application Programming Interface (API) is often the most convenient way to collect well-structured data from the web. In the lecture, we covered an example of getting data using the Twitter API, but unfortunately it takes a while to complete all of the various authentication steps required for using that API, so we can't replicate that in today's class.
+
+Instead, we are going to use the reddit API (which doesn't require authentication for small-volume usage) to collect some users comments about Brexit. 
+
+## Scraping the web
+
+*Warning: Collecting data from the web ("web scraping") is usually really annoying. There is no single function that will give you the information you need from a webpage. Instead, you must carefully and painfully write code that will give you what you want. If that sounds OK, then continue on with this problem set. If it doesn't, stop here, and do something else.*
+
+Throughout this course, the modal structure of a problem set has been that we give you a nice, clean, rectangular `data.frame`, which you use for the application of some fancy method. Here, we are going to walk through an example of getting the horrible, messy, and oddly-shaped data from a webpage, and turning it into a `data.frame` that is usable.
+
+Since no two websites are the same, web scraping usually requires you to identify in the html code that lies behind websites. The goal here is to parse the HTML into usable data. Generally speaking, there are three main steps for webscraping:
+  1. access a web page from R
+  2. tell R where to “look” on the page
+  3. Manipulate the data in a usable format within R.
+
+We are going to set ourselves a typical data science-type task in which we are going to scrape some data about politicians from their wiki pages. In particular, our task is to establish which universities were most popular amongst the current crop of UK MPs. It is often useful to define in advance what the exact goal of the data collection task is. For us, we would like to finish with a `data.frame` consisting of 650 observations (one for each MP), and two variables: the MPs name, and where they went to university.
+
+### Step 1: Scrape a list of current MPs
+
+First, we need to know which MPs are currently in parliament. A bit of googling shows that [this wiki page](https://en.wikipedia.org/wiki/List_of_United_Kingdom_MPs_by_seniority,_2017–present) gives us what we need. Scroll down a little, and you will see that there is a table where each row is an MP. It looks like this: 
+
+![](rt_hon.png)
+
+The nice thing about this is that an html table like this should be reasonably easy to work with. We will need to be able to work with the underlying html code of the wiki page in what follows, so you will need to be able to see the source code of the website. If you don't know how to look at the source code, follow the relevant instructions on [this page](https://www.computerhope.com/issues/ch000746.htm) for the browser that you are using.
+
+When you have figured that out, you should be able to see something that looks a bit like this:
+![](htmleg.png)
+
+
+As you can see, html is horrible to look at. In R, we can read in the html code by using the `read_html` function from the `rvest` package:
+
+```{r}
+
+# Read in the raw html code of the wiki page
+mps_list_page <- read_html("https://en.wikipedia.org/wiki/List_of_United_Kingdom_MPs_by_seniority,_2017–present")
+
+```
+
+`read_html` returns an XML document (to check, try running `class(mps_list_page)`), which makes navigating the different parts of the website (somewhat) easier. 
+
+Now that we have the html code in R, we need to find the parts of the webpage that contain the table. Scroll through the source code that you should have open in your browser to see if you can find the parts of the code that contain the table we are interested in.
+
+On line 222, you should see something like `<table class="wikitable collapsible sortable" style="text-align: center; font-size: 85%; line-height: 14px;">`. This marks the beginning of the table that we are interested in, and we can ask `rvest` to extract that table from our `mps_list_page` object by using the `xml_find_all` function.
+
+```{r}
+
+# Extract table of MPs
+mp_table <- xml_find_all(mps_list_page, xpath = "//table[@class='wikitable collapsible sortable']")
+
+```
+
+Here, the string we pass to the `xpath` argument tells `rvest` that we would like to grab the `table` from the object `mps_list_page` that has the class `wikitable collapsible sortable`. The object we have created (`mp_table`) is itself an XML object, which is good, because we will need to navigate through that table to get the information we need.
+
+Now, within that table, we would like to extract two pieces of information for each MP: their name, and the link to their own individual wikipedia page. Looking back at the html source code, you should be able to see that each MP's entry in the table is contained within its own separate `<span>` tag, and the information we are after is further nested within a `<a>` tag. For example, line 276 includes the following:
+
+![](bottomley.png)
+
+Yes, Bottomley is a funny name.
+
+We would like to extract all of these entries from the table, and we can do so by again using `xml_find_all` and using the appropriate Xpath expression, which here is `".//span/a"`, where the full-stop indicates that we would like to search only within this table.
+
+```{r}
+
+mp_table_entries <- xml_find_all(mp_table, xpath = ".//span/a")
+
+```
+
+Finally, now that we have the entry for each MP, it is very simple to extract the name of the MP and the URL to their wikipedia page:
+```{r}
+
+mp_names <- xml_text(mp_table_entries) # xml_text returns the text between the tags (here, the MPs' names)
+
+mp_hrefs <- xml_attr(mp_table_entries, "href") # xml_attr returns the attrubutes of the tags that you have named. Here we have asked for the "href" which will give us the link to each MP's own wiki page 
+
+# Combine into a data.frame
+mps <- data.frame(name = mp_names, url = mp_hrefs, university = NA, stringsAsFactors = FALSE)
+head(mps)
+```
+
+OK, OK, so those urls are not quite complete. We need to fix "https://en.wikipedia.org" to the front of them first. We can do that using `paste()`:
+
+```{r}
+
+mps$url <- paste("https://en.wikipedia.org", mps$url, sep = "")
+head(mps)
+```
+
+That's better. 
+
+Are you still here? Well done! We have something! We have...a list of MPs' names! But we don't have anything else. In particular, we still do not know where these people went to university. To find that, we have to move on to step 2.
+
+### Step 2: Scrape the wiki page for each MP
+
+Let's look at the page for the first MP in our list: [https://en.wikipedia.org/wiki/Kenneth_Clarke](https://en.wikipedia.org/wiki/Kenneth_Clarke). Scroll down the page, looking at the panel on the right-hand side. At the bottom of the panel, you will see this:
+
+![](clarke.png)
+
+The bottom line gives Clarke's alma mater, which in this case is one of the Cambridge colleges. That is the information we are after. If we look at the html source code for this page, we can see that the alma mater line of the panel is enclosed in another `<a>` tag:
+
+![](alma.png)
+
+Now that we know this, we can call in the html using `read_html` again:
+
+```{r}
+
+  mp_text <- read_html(mps$url[1])
+
+```
+
+And then we can use `xml_find_all` and `xml_text` to extract the name of the university. The `xpath` argument is a bit more complicated here. We are telling `rvest` to look for the tag `a` with a title of `"Alma mater"`, and then asking `rvest` to look for the *next* `a` tag that comes after the alma mater tag. This is because the name of the university is actually stored in the subsequent `a` tag.
+
+```{r}
+  
+  mp_university <- xml_text(xml_find_all(mp_text, xpath = "//a[@title='Alma mater']/following::a[1]"))
+  print(mp_university)
+
+```
+
+Regardless of whether you followed that last bit: it works! We now know where Kenneth Clarke went to university. Finally, we can assign the university that he went to to the `mps` `data.frame` that we created earlier:
+
+```{r}
+  
+  mps$university[1] <- mp_university
+  head(mps)
+  
+```
+
+
+### Exercise 2
+
+1. Figure out how to collect this university information for all of the other MPs in the data. You will need to write a for-loop, which iterates over the URLs in the `data.frame` we just constructed and pulls out the relevant information from each MP's wiki page. You will find very quickly that web-scraping is a messy business, and your loop will probably fail. You might want to use the `stop`, `next`, `try` and `if` functions to help avoid problems.
+
+A for-loop is pretty easy to set up given the code provided above. We just need to loop over each row of the `mps` object, read in the html, find the university, and assign it to the relevant cell in the data.frame. E.g.
+
+```{r, eval=F}
+
+for(i in 1:nrow(mps)){
+  cat(".")
+  
+  mp_text <- read_html(mps$url[i])
+
+  mp_university <- xml_text(xml_find_all(mp_text, xpath = "//a[@title='Alma mater']/following::a[1]"))
+
+  mps$university[i] <- mp_university
+
+
+}
+```
+
+Here, `cat(".")` is just a piece of convenience code that will print out a dot to the console on every iteration of the loop. This just helps us to know that R hasn't crashed or that nothing is happening. It's also quite satisfying to know that every time a dot appears, that means that you have collected some new data.
+
+However, if you try running that code, you'll see that it will cut out after a short while with an error.
+
+The main difficulty with this exercise is that there are essentially an infinite number of ways in which data scraping can go wrong. Here, the main problems is that some of the MPs do not actually have any information recorded in their wiki profiles about the university that they attended. Look at the page for [Ronnie Campbell](https://en.wikipedia.org/wiki/Ronnie_Campbell) for example. Never went to university, but certainly looks like a happy chap.
+
+Because of that, we need to build in some code into the loop that says "OK, if you can't find any information about this MP's university, just code it as `NA`." I've added a line that does this to the loop.
+
+```{r, eval = F}
+
+for(i in 1:nrow(mps)){
+  cat(".")
+
+  mp_text <- read_html(mps$url[i])
+  
+  mp_university <- xml_text(xml_find_all(mp_text, xpath = "//a[@title='Alma mater']/following::a[1]"))
+  
+  if(length(mp_university)==0) mp_university <- NA
+  
+  mps$university[i] <- mp_university
+
+
+}
+  
+```
+
+```{r, echo=FALSE}
+
+load("mps.Rdata")
+
+```
+
+Now the loop runs without breaking! Hooray!
+
+(It is worth noting that this is a very simple example. In the typical web-scraping exercise, you should expect considerably more frustration than you have encountered here. :) Enjoy!)
+
+2. Which was the modal university for the current set of UK MPs?
+
+There are a number of ways of finding this out, for example:
+
+```{r}
+
+sort(table(mps$university), decreasing = T)[1]
+
+```
+
+So, LSE is the most popular university for MPs? That seems...unlikely... And indeed it is. Remember the Kenneth Clarke example: wiki lists the college he attended in Cambridge, not just the university. Maybe lots of MPs went to Cambridge, but they all just went to different colleges? Let's check:
+
+```{r}
+unique(mps$university[grep("Cambridge",mps$university)])
+```
+
+Oh dear. Maybe it is the same for Oxford?
+
+```{r}
+unique(mps$university[grep("Oxford",mps$university)])
+```
+
+Yup.
+
+Right, so we need to do some recoding. Let's create a new variable that we can use to simplify the universities coding:
+
+```{r}
+mps$university_new <- mps$university
+
+mps$university_new[grep("Cambridge",mps$university)] <- "Cambridge"
+mps$university_new[grep("Oxford",mps$university)] <- "Oxford"
+mps$university_new[grep("London School of Economics",mps$university)] <- "LSE"
+
+mps$university_new[!mps$university_new%in%c("Cambridge","Oxford","LSE")] <- "Other/None"
+
+sort(table(mps$university_new), decreasing = T)
+
+```
+
+Looks like the Oxbridge connection is still pretty strong!
+
+3. Go back to the scraping code and see if you can add some more variables to the data.frame. Can you scrape the MPs' party affiliations? Can you scrape their date of birth? Doing so will require you to look carefully at the html source code, and work out the appropriate xpath expression to use. For guidance on xpath, see [here](https://blog.scrapinghub.com/2016/10/27/an-introduction-to-xpath-with-examples).
+
+```{r, eval=FALSE}
+
+mps$university <- NA
+mps$party <- NA
+mps$birthday <- NA
+
+for(i in 1:nrow(mps)){
+  cat(".")
+
+  mp_text <- read_html(mps$url[i])
+  
+  mp_university <- xml_text(xml_find_all(mp_text, xpath = "//a[@title='Alma mater']/following::a[1]"))
+  mp_party <- xml_text(xml_find_all(mp_text, xpath = "////tr/th[text()='Political party']/following::a[1]"))
+  mp_birthday <- xml_text(xml_find_all(mp_text, xpath = "//span[@class='bday']"))
+  
+  if(length(mp_university)==0) mp_university <- NA
+  if(length(mp_party)==0) mp_party <- NA
+  if(length(mp_birthday)==0) mp_birthday <- NA
+  
+  mps$university[i] <- mp_university
+  mps$party[i] <- mp_party
+  mps$birthday[i] <- mp_birthday
+
+
+}
+
+
+```
+
+```{r, eval=TRUE}
+head(mps)
+```
