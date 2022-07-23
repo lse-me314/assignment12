@@ -27,7 +27,7 @@ An Application Programming Interface (API) is often the most convenient way to c
 
 ### Authentication
 
-In theory,[^theory] you shouldn't need anything other than a Twitter account to be able to use the `rtweet` package. If you don't have a Twitter account: 1) Congratulations, you must be more productive than me, and 2) You will need to open one to interact with the API (sorry).
+In theory,[^theory] you shouldn't need anything other than a Twitter account to be able to use the `rtweet` package. If you don't have a Twitter account: 1) Congratulations, you must be more productive than me, and 2) You will need to open one to interact with the API (sorry). In order to access the API, you will need to be logged in to Twitter on your browser, and then you will need to execute the following command and follow the on-screen instructions:
 
 You should note that the use of the Twitter API is subject to [rate limits](https://developer.twitter.com/en/docs/twitter-api/rate-limits). This limits the amount of data you can retrieve at any time, and if you repeatedly call the functions below you will find that you start getting errors. If this happens, wait for 15 minutes and the rate limits will reset. Alternatively, you can register for more advanced access to the API, for example via the [Academic Research product track](https://developer.twitter.com/en/products/twitter-api/academic-research) which will give you the ability to collect far more Twitter data than could ever possibly be good for an individual.
 
@@ -43,17 +43,17 @@ There are many functions in the `rtweet` package that allow you to grab tweets f
 
 - `get_timelines()` -- Returns tweets from specific Twitter users
 
-Let's start by collecting some recent Tweets about [Wimbledon](https://www.wimbledon.com):
+Let's start by collecting some recent Tweets about [EURO2022](https://www.uefa.com/womenseuro/):
 
 ```{r, eval = TRUE, echo = FALSE}
 
-load("data/wimdledon_tweets.Rdata")
+load("data/euro_tweets.Rdata")
 
 ```
 
 ```{r, eval = FALSE, echo = TRUE}
 
-wimdledon_tweets <- search_tweets("wimbledon", n = 200)
+euro_tweets <- search_tweets("#WEURO2022", n = 200)
 
 ```
 
@@ -73,11 +73,11 @@ You will see that the returned object is a `tibble` object, which is just [a fan
 
 Beyond the text data, the Twitter API is very useful for collecting information about the structure of the network itself. Data on social network structures has played a prominent role in social science research in recent years, including being used to [estimate the positions of political actors in a common ideological space](http://pablobarbera.com/static/barbera_twitter_ideal_points.pdf); to describe the [effects of ideologically diverse news on opinion](https://science.sciencemag.org/content/348/6239/1130); and to study [how information spreads through a network](https://arxiv.org/abs/1202.3162), amongst many others.
 
-Let's do a simple network task, and find the common set of people followed on twitter by the current number one ranked tennis players in the men and women's [tennis rankings](http://www.tennisnow.com/Rankings/WTA-Singles.aspx). I have done the first bit of data collection for you:
+Let's do a simple network task, and find the common set of people followed on Twitter by two of the best tennis players in the world. I have done the first bit of data collection for you:
 
 ```{r, eval = FALSE}
 
-player_accounts <- c("ashbarty", "DjokerNole")
+player_accounts <- c("iga_swiatek", "RafaelNadal")
 
 ```
 
@@ -112,7 +112,7 @@ We are going to set ourselves a typical data science-type task in which we are g
 
 ### Step 1: Scrape a list of current MPs
 
-First, we need to know which MPs are currently in parliament. A bit of googling shows that [this wiki page](https://en.wikipedia.org/wiki/List_of_United_Kingdom_MPs_by_seniority_(2017–2019)) gives us what we need. Scroll down a little, and you will see that there is a table where each row is an MP. It looks like this: 
+First, we need to know which MPs were in parliament in this period. A bit of googling shows that [this wiki page](https://en.wikipedia.org/wiki/List_of_United_Kingdom_MPs_by_seniority_(2017–2019)) gives us what we need. Scroll down a little, and you will see that there is a table where each row is an MP. It looks like this: 
 
 ![](figs/rt_hon.png)
 
