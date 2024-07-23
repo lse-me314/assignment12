@@ -47,33 +47,7 @@ Despite the large size of the file, we are actually using one of the *smaller* v
 
 1.  Load the glove embeddings into R using the `load()` function.
 
-<details>
-
-<summary>Reveal code</summary>
-
-```{r, echo = TRUE, eval = TRUE}
-
-load("glove_embeddings.Rdata")
-
-```
-
-</details>
-
 2.  Look at the dimensions of the `glove` embeddings object. How many rows does this object have? How many columns? What do these represent?
-
-<details>
-
-<summary>Reveal code</summary>
-
-```{r}
-
-dim(glove)
-
-```
-
-> Rows represent words. Columns represet the dimensions of the embedding.
-
-</details>
 
 3.  Write a function to calculate the cosine similarity between a selected word and every other word in the glove embeddings object. I have provided some starter code below. You should be able to work out what goes in each part of this function by looking at the examples in the lecture slides. 
 
@@ -81,54 +55,24 @@ dim(glove)
 
     The function you create should take two inputs: 1) `target_word` -- the word for which you would like to calculate similarities;  2) `n` -- the number of nearest neighbouring words returned
 
-<details>
-
-<summary>Reveal code</summary>
-
 ```{r, eval = TRUE, echo = TRUE}
 
 similarities <- function(target_word, n){
 
   # Extract embedding of target word by subsetting to the relevant row of the glove object
-  target_vector <- glove[which(rownames(glove) %in% target_word),]  
   
   # Calculate cosine similarity between target word and other words using the sim2 function
-  target_sim <- sim2(glove, matrix(target_vector, nrow = 1))
   
   # Report nearest neighbours of target word (i.e. those with the largest cosine similarity scores)
-  names(sort(target_sim[,1], decreasing = T))[1:n]
 
 }
 
 ```
 
-</details>
 
 4.  Use your function to report the 7 most similar words to the words "quantitative", "text", and "analysis"?
 
-```{r, eval=TRUE, echo = FALSE, results='asis'}
 
-cat("<details>")
-
-cat("<summary>Reveal code</summary>")
-
-```
-
-```{r, eval = TRUE, echo = TRUE}
-
-similarities("quantitative", n = 7)
-
-similarities("text", n = 7)
-
-similarities("analysis", n = 7)
-
-```
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("</details>")
-
-```
 
 ## Word Analogies
 
@@ -136,73 +80,29 @@ cat("</details>")
     
     Your function will need to take four arguments. Three arguments should correspond to the words included in the analogy. The fourth should be an argument specifying the number of nearest neighbouring words returned. Again, I have provided some starter code below, which you should be able to complete by consulting the lecture slides.
 
-<details>
-
-<summary>Reveal code</summary>
 
 ```{r, eval = TRUE, echo = TRUE}
 
 analogies <- function(a, b, c, n){
   
   # Extract vectors for each of the three words in analogy task by subsetting the glove matrix
-  a_vec <- glove[which(rownames(glove) == a),]
-  b_vec <- glove[which(rownames(glove) == b),]
-  c_vec <- glove[which(rownames(glove) == c),]
   
   # Generate analogy vector: vector(c) - vector(a) + vector(b)
-  target <- c_vec - a_vec + b_vec
   
   # Calculate cosine similarity between anaology vector and all other vectors using the sim2 function
-  target_sim <- sim2(glove, matrix(target, nrow = 1))
   
   # Report nearest neighbours of analogy vector
-  names(sort(target_sim[,1], decreasing = T))[1:n]
 
 }
 
 ```
 
-</details>
 
 2.  Use the function you created above to find the word-embedding answers to the following analogy completion tasks.
 
     -   Einstein is to scientist as Picasso is to \_\_\_?
     -   Arsenal is to football as Yankees is to \_\_\_?
     -   Actor is to theatre as doctor is to \_\_\_?
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("<details>")
-
-cat("<summary>Reveal code</summary>")
-
-```
-
-```{r, eval = TRUE, echo = TRUE}
-
-analogies("man", "woman", "king", 6)
-
-analogies("einstein", "scientist", "picasso", 6)
-
-analogies("arsenal", "football", "yankees", 6)
-
-analogies("actor", "theatre", "doctor", 6)
-
-
-```
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("> This is really very impressive! Although these examples are cherry-picked, it is notable that the embeddings clearly encode some important aspects of word meaning.")
-
-```
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("</details>")
-
-
-```
 
 3.  Come up with some of your own analogies and try them here.
 
@@ -231,102 +131,17 @@ mft_texts <- read_csv("mft_texts.csv")
 
 1.  Create a vector of the MFT "Care" words.
 
-<details>
-
-<summary>Reveal code</summary>
-
-```{r, echo = TRUE, eval = TRUE}
-
-care_words <- mft_dictionary_words$word[mft_dictionary_words$foundation == "care"]
-
-```
-
-</details>
-
 2.  Extract the embeddings from the `glove` object relating to the care words.
-
-<details>
-
-<summary>Reveal code</summary>
-
-```{r, echo = TRUE, eval = TRUE}
-
-care_embeddings <- glove[rownames(glove) %in% care_words,]
-
-```
-
-</details>
 
 3.  Calculate the mean embedding vector of the care words. To do this, use the `colMeans` function, which will calculate the mean of each column of the matrix.
 
-<details>
-
-<summary>Reveal code</summary>
-
-```{r, echo = TRUE, eval = TRUE}
-
-care_embeddings_mean <- colMeans(care_embeddings)
-
-```
-
-</details>
-
 4.  Calculate the similarity between the mean care vector and every other word in the `glove` embedding object. To do so, use the `sim2()` function again.
-
-<details>
-
-<summary>Reveal code</summary>
-
-```{r, echo = TRUE, eval = TRUE}
-
-target_sim <- sim2(x = glove,
-                   y = matrix(care_embeddings_mean, nrow = 1))
-
-```
-
-</details>
 
 5.  What are the 500 words that have highest cosine similarity with the mean care vector? How many of these words are in the original dictionary?
 
-<details>
-
-<summary>Reveal code</summary>
-
-```{r, echo = TRUE, eval = TRUE}
-
-top500 <- names(sort(target_sim[,1], decreasing = T))[1:500]
-
-table(top500%in%care_words)
-
-```
-
-</details>
-
 6.  Examine the words that are in the top 500 words that you calculated above but which are *not* in the original care dictionary. Do these represent the concept of care?
 
-<details>
-
-<summary>Reveal code</summary>
-
-```{r, echo = TRUE, eval = TRUE}
-
-top500[!top500%in%care_words]
-
-```
-
-> It is relatively uncontroversial to suggest that these words are representative of the concept of "care".
-
-</details>
-
-8.  What does your answer to the previous question suggest about this dictionary expansion approach?
-
-<details>
-
-<summary>Reveal code</summary>
-
-> The idea here is that using the word-embeddings has allowed us to automatically expand the set of of words associated with a concept that we previously measured using a dictionary of terms that were manually selected. This means that we can use information about word similarity to supplement our existing measurement approaches. Whether this leads to performance improvements in terms of classification is the subject of the next part of the assignment.
-
-</details>
+7.  What does your answer to the previous question suggest about this dictionary expansion approach?
 
 ## Classification Accuracy
 
@@ -334,97 +149,7 @@ The `mft_texts` object includes a series of variables that record the human anno
 
 1.  Create a new dictionary which includes two categories. The first should be a `care_original_words` category, which contains only the words from the original care dictionary. The second should be a `care_embedding_words` which contains both the original care words and the top 500 words that you extracted in the last section.
 
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("<details>")
-
-cat("<summary>Reveal code</summary>")
-
-```
-
-```{r, echo = TRUE, warning=FALSE, message=FALSE, eval = TRUE}
-
-# Create a dfm
-mft_dfm <- mft_texts %>% 
-  corpus(text_field = "text") %>% 
-  tokens(remove_punct = TRUE) %>% 
-  dfm() %>%
-  dfm_trim(min_termfreq = 5)
-
-# Create a care dictionary
-care_dictionary <- dictionary(list(care_original = care_words,
-                                   care_embedding = c(top500[!top500%in%care_words], care_words)))
-
-
-```
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("</details>")
-
-```
-
 2.  Use the dictionary you just constructed to score the scores in the `mft_texts` object. Create variables in that object that indicate whether a given dictionary classifies each text as a care text or not (i.e. classify a text as a care text if it contains any words from the relevant dictionary).
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("<details>")
-
-cat("<summary>Reveal code</summary>")
-
-```
-
-```{r, echo = TRUE, warning=FALSE, message=FALSE, eval = TRUE}
-# Score the texts using the dictionaries
-care_dfm_dictionary <- dfm_lookup(mft_dfm, care_dictionary)
-mft_texts$care_original <- as.numeric(care_dfm_dictionary[,1]) > 0
-mft_texts$care_embedding <- as.numeric(care_dfm_dictionary[,2]) > 0
-
-```
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("</details>")
-
-```
 
 3.  Create a confusion matrix which compares the human annotations to the scores generated by the dictionary analysis. Which performs best, the original dictionary or the word-embedding approach?
 
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("<details>")
-
-cat("<summary>Reveal code</summary>")
-
-```
-
-```{r, echo=TRUE, warning=FALSE, message=FALSE, eval = TRUE}
-
-# Calculate confusion matrix
-care_original_confusion <- table( 
-  dictionary = mft_texts$care_original > 0,
-  human_coding = mft_texts$care)
-
-care_embedding_confusion <- table( 
-  dictionary = mft_texts$care_embedding > 0,
-  human_coding = mft_texts$care)
-
-# Calculate performance statistics
-library(caret)
-confusionMatrix(care_original_confusion, positive = "TRUE")
-confusionMatrix(care_embedding_confusion, positive = "TRUE")
-
-
-```
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("> In this instance, the accuracy of our predictions decreases slightly when incorporating the words from the word-embedding similarity scores, but the sensitivity of the classification increases significantly. This suggests that the additional words are substantially improving our ability to identify texts that express the concept of care, albeit at the cost of also introducing a larger number of false positive results.")
-
-```
-
-```{r, eval=TRUE, echo = FALSE, results='asis'}
-
-cat("</details>")
-
-```

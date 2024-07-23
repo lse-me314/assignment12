@@ -406,32 +406,11 @@ be small.</p>
 <div id="word-similarities" class="section level2">
 <h2>Word Similarities</h2>
 <ol style="list-style-type: decimal">
-<li>Load the glove embeddings into R using the <code>load()</code>
-function.</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>load(&quot;glove_embeddings.Rdata&quot;)</code></pre>
-</details>
-<ol start="2" style="list-style-type: decimal">
-<li>Look at the dimensions of the <code>glove</code> embeddings object.
-How many rows does this object have? How many columns? What do these
-represent?</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>dim(glove)</code></pre>
-<pre><code>## [1] 400000    300</code></pre>
-<blockquote>
-<p>Rows represent words. Columns represet the dimensions of the
-embedding.</p>
-</blockquote>
-</details>
-<ol start="3" style="list-style-type: decimal">
+<li><p>Load the glove embeddings into R using the <code>load()</code>
+function.</p></li>
+<li><p>Look at the dimensions of the <code>glove</code> embeddings
+object. How many rows does this object have? How many columns? What do
+these represent?</p></li>
 <li><p>Write a function to calculate the cosine similarity between a
 selected word and every other word in the glove embeddings object. I
 have provided some starter code below. You should be able to work out
@@ -451,40 +430,19 @@ setting the <code>nrow</code> argument equal to 1.</p>
 calculate similarities; 2) <code>n</code> – the number of nearest
 neighbouring words returned</p></li>
 </ol>
-<details>
-<summary>
-Reveal code
-</summary>
 <pre class="r"><code>similarities &lt;- function(target_word, n){
 
   # Extract embedding of target word by subsetting to the relevant row of the glove object
-  target_vector &lt;- glove[which(rownames(glove) %in% target_word),]  
   
   # Calculate cosine similarity between target word and other words using the sim2 function
-  target_sim &lt;- sim2(glove, matrix(target_vector, nrow = 1))
   
   # Report nearest neighbours of target word (i.e. those with the largest cosine similarity scores)
-  names(sort(target_sim[,1], decreasing = T))[1:n]
 
 }</code></pre>
-</details>
 <ol start="4" style="list-style-type: decimal">
 <li>Use your function to report the 7 most similar words to the words
 “quantitative”, “text”, and “analysis”?</li>
 </ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>similarities(&quot;quantitative&quot;, n = 7)</code></pre>
-<pre><code>## [1] &quot;quantitative&quot; &quot;qualitative&quot;  &quot;empirical&quot;    &quot;measurement&quot;  &quot;analysis&quot;    
-## [6] &quot;methodology&quot;  &quot;analytical&quot;</code></pre>
-<pre class="r"><code>similarities(&quot;text&quot;, n = 7)</code></pre>
-<pre><code>## [1] &quot;text&quot;     &quot;texts&quot;    &quot;document&quot; &quot;read&quot;     &quot;messages&quot; &quot;written&quot;  &quot;copy&quot;</code></pre>
-<pre class="r"><code>similarities(&quot;analysis&quot;, n = 7)</code></pre>
-<pre><code>## [1] &quot;analysis&quot;    &quot;analyses&quot;    &quot;study&quot;       &quot;data&quot;        &quot;studies&quot;    
-## [6] &quot;analyzed&quot;    &quot;methodology&quot;</code></pre>
-</details>
 </div>
 <div id="word-analogies" class="section level2">
 <h2>Word Analogies</h2>
@@ -500,28 +458,17 @@ words returned. Again, I have provided some starter code below, which
 you should be able to complete by consulting the lecture
 slides.</p></li>
 </ol>
-<details>
-<summary>
-Reveal code
-</summary>
 <pre class="r"><code>analogies &lt;- function(a, b, c, n){
   
   # Extract vectors for each of the three words in analogy task by subsetting the glove matrix
-  a_vec &lt;- glove[which(rownames(glove) == a),]
-  b_vec &lt;- glove[which(rownames(glove) == b),]
-  c_vec &lt;- glove[which(rownames(glove) == c),]
   
   # Generate analogy vector: vector(c) - vector(a) + vector(b)
-  target &lt;- c_vec - a_vec + b_vec
   
   # Calculate cosine similarity between anaology vector and all other vectors using the sim2 function
-  target_sim &lt;- sim2(glove, matrix(target, nrow = 1))
   
   # Report nearest neighbours of analogy vector
-  names(sort(target_sim[,1], decreasing = T))[1:n]
 
 }</code></pre>
-</details>
 <ol start="2" style="list-style-type: decimal">
 <li><p>Use the function you created above to find the word-embedding
 answers to the following analogy completion tasks.</p>
@@ -530,28 +477,8 @@ answers to the following analogy completion tasks.</p>
 <li>Arsenal is to football as Yankees is to ___?</li>
 <li>Actor is to theatre as doctor is to ___?</li>
 </ul></li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>analogies(&quot;man&quot;, &quot;woman&quot;, &quot;king&quot;, 6)</code></pre>
-<pre><code>## [1] &quot;king&quot;     &quot;queen&quot;    &quot;monarch&quot;  &quot;throne&quot;   &quot;princess&quot; &quot;mother&quot;</code></pre>
-<pre class="r"><code>analogies(&quot;einstein&quot;, &quot;scientist&quot;, &quot;picasso&quot;, 6)</code></pre>
-<pre><code>## [1] &quot;picasso&quot;   &quot;painter&quot;   &quot;painting&quot;  &quot;artist&quot;    &quot;paintings&quot; &quot;scientist&quot;</code></pre>
-<pre class="r"><code>analogies(&quot;arsenal&quot;, &quot;football&quot;, &quot;yankees&quot;, 6)</code></pre>
-<pre><code>## [1] &quot;baseball&quot;   &quot;yankees&quot;    &quot;sox&quot;        &quot;football&quot;   &quot;basketball&quot;
-## [6] &quot;braves&quot;</code></pre>
-<pre class="r"><code>analogies(&quot;actor&quot;, &quot;theatre&quot;, &quot;doctor&quot;, 6)</code></pre>
-<pre><code>## [1] &quot;theatre&quot;  &quot;doctor&quot;   &quot;hospital&quot; &quot;medical&quot;  &quot;theater&quot;  &quot;doctors&quot;</code></pre>
-<blockquote>
-<p>This is really very impressive! Although these examples are
-cherry-picked, it is notable that the embeddings clearly encode some
-important aspects of word meaning.</p>
-</blockquote>
-</details>
-<ol start="3" style="list-style-type: decimal">
-<li>Come up with some of your own analogies and try them here.</li>
+<li><p>Come up with some of your own analogies and try them
+here.</p></li>
 </ol>
 </div>
 <div id="dictionary-expansion" class="section level2">
@@ -585,193 +512,24 @@ moral concern described by Moral Foundations Theory.</li>
 </ul></li>
 </ul>
 <ol style="list-style-type: decimal">
-<li>Create a vector of the MFT “Care” words.</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>care_words &lt;- mft_dictionary_words$word[mft_dictionary_words$foundation == &quot;care&quot;]</code></pre>
-</details>
-<ol start="2" style="list-style-type: decimal">
-<li>Extract the embeddings from the <code>glove</code> object relating
-to the care words.</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>care_embeddings &lt;- glove[rownames(glove) %in% care_words,]</code></pre>
-</details>
-<ol start="3" style="list-style-type: decimal">
-<li>Calculate the mean embedding vector of the care words. To do this,
-use the <code>colMeans</code> function, which will calculate the mean of
-each column of the matrix.</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>care_embeddings_mean &lt;- colMeans(care_embeddings)</code></pre>
-</details>
-<ol start="4" style="list-style-type: decimal">
-<li>Calculate the similarity between the mean care vector and every
+<li><p>Create a vector of the MFT “Care” words.</p></li>
+<li><p>Extract the embeddings from the <code>glove</code> object
+relating to the care words.</p></li>
+<li><p>Calculate the mean embedding vector of the care words. To do
+this, use the <code>colMeans</code> function, which will calculate the
+mean of each column of the matrix.</p></li>
+<li><p>Calculate the similarity between the mean care vector and every
 other word in the <code>glove</code> embedding object. To do so, use the
-<code>sim2()</code> function again.</li>
+<code>sim2()</code> function again.</p></li>
+<li><p>What are the 500 words that have highest cosine similarity with
+the mean care vector? How many of these words are in the original
+dictionary?</p></li>
+<li><p>Examine the words that are in the top 500 words that you
+calculated above but which are <em>not</em> in the original care
+dictionary. Do these represent the concept of care?</p></li>
+<li><p>What does your answer to the previous question suggest about this
+dictionary expansion approach?</p></li>
 </ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>target_sim &lt;- sim2(x = glove,
-                   y = matrix(care_embeddings_mean, nrow = 1))</code></pre>
-</details>
-<ol start="5" style="list-style-type: decimal">
-<li>What are the 500 words that have highest cosine similarity with the
-mean care vector? How many of these words are in the original
-dictionary?</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>top500 &lt;- names(sort(target_sim[,1], decreasing = T))[1:500]
-
-table(top500%in%care_words)</code></pre>
-<pre><code>## 
-## FALSE  TRUE 
-##   386   114</code></pre>
-</details>
-<ol start="6" style="list-style-type: decimal">
-<li>Examine the words that are in the top 500 words that you calculated
-above but which are <em>not</em> in the original care dictionary. Do
-these represent the concept of care?</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code>top500[!top500%in%care_words]</code></pre>
-<pre><code>##   [1] &quot;traumatized&quot;     &quot;victimized&quot;      &quot;cruelly&quot;         &quot;helpless&quot;       
-##   [5] &quot;innocent&quot;        &quot;unborn&quot;          &quot;sufferings&quot;      &quot;endure&quot;         
-##   [9] &quot;terrified&quot;       &quot;frightened&quot;      &quot;sick&quot;            &quot;callous&quot;        
-##  [13] &quot;wronged&quot;         &quot;civilians&quot;       &quot;viciously&quot;       &quot;senseless&quot;      
-##  [17] &quot;terrorizing&quot;     &quot;frighten&quot;        &quot;beatings&quot;        &quot;horrific&quot;       
-##  [21] &quot;risking&quot;         &quot;inhumane&quot;        &quot;unspeakable&quot;     &quot;confess&quot;        
-##  [25] &quot;humiliation&quot;     &quot;defenseless&quot;     &quot;loneliness&quot;      &quot;terrorize&quot;      
-##  [29] &quot;grief&quot;           &quot;bereaved&quot;        &quot;injustice&quot;       &quot;subjecting&quot;     
-##  [33] &quot;vengeful&quot;        &quot;innocents&quot;       &quot;misfortune&quot;      &quot;abuse&quot;          
-##  [37] &quot;neglect&quot;         &quot;plight&quot;          &quot;treating&quot;        &quot;traumatised&quot;    
-##  [41] &quot;stigmatized&quot;     &quot;oppression&quot;      &quot;starving&quot;        &quot;humiliate&quot;      
-##  [45] &quot;oftentimes&quot;      &quot;grievous&quot;        &quot;unjustly&quot;        &quot;grieving&quot;       
-##  [49] &quot;humiliated&quot;      &quot;betrayed&quot;        &quot;spared&quot;          &quot;mutilation&quot;     
-##  [53] &quot;lest&quot;            &quot;ashamed&quot;         &quot;heinous&quot;         &quot;enemies&quot;        
-##  [57] &quot;abusive&quot;         &quot;barbaric&quot;        &quot;elderly&quot;         &quot;starve&quot;         
-##  [61] &quot;fear&quot;            &quot;neglecting&quot;      &quot;terrible&quot;        &quot;deprived&quot;       
-##  [65] &quot;dignity&quot;         &quot;deprive&quot;         &quot;beings&quot;          &quot;dying&quot;          
-##  [69] &quot;mercilessly&quot;     &quot;hatred&quot;          &quot;grievously&quot;      &quot;oneself&quot;        
-##  [73] &quot;vicious&quot;         &quot;succumb&quot;         &quot;feelings&quot;        &quot;schoolmates&quot;    
-##  [77] &quot;fearful&quot;         &quot;horrible&quot;        &quot;horrifying&quot;      &quot;sparing&quot;        
-##  [81] &quot;hardships&quot;       &quot;afraid&quot;          &quot;risked&quot;          &quot;indiscriminate&quot; 
-##  [85] &quot;unnecessarily&quot;   &quot;bystanders&quot;      &quot;heartless&quot;       &quot;shame&quot;          
-##  [89] &quot;ordeal&quot;          &quot;offends&quot;         &quot;subjected&quot;       &quot;enslavement&quot;    
-##  [93] &quot;handicapped&quot;     &quot;disturbed&quot;       &quot;humanity&quot;        &quot;sacrificing&quot;    
-##  [97] &quot;degrading&quot;       &quot;oppressed&quot;       &quot;treat&quot;           &quot;retribution&quot;    
-## [101] &quot;maiming&quot;         &quot;injure&quot;          &quot;terrify&quot;         &quot;terminally&quot;     
-## [105] &quot;unbearable&quot;      &quot;betray&quot;          &quot;suicidal&quot;        &quot;pretending&quot;     
-## [109] &quot;seriously&quot;       &quot;perpetrated&quot;     &quot;destitute&quot;       &quot;maimed&quot;         
-## [113] &quot;perpetrator&quot;     &quot;insult&quot;          &quot;demeaning&quot;       &quot;depraved&quot;       
-## [117] &quot;betraying&quot;       &quot;selfishness&quot;     &quot;aiding&quot;          &quot;traumas&quot;        
-## [121] &quot;taunt&quot;           &quot;brutal&quot;          &quot;belittling&quot;      &quot;sickening&quot;      
-## [125] &quot;despair&quot;         &quot;needless&quot;        &quot;orphans&quot;         &quot;repress&quot;        
-## [129] &quot;terrorized&quot;      &quot;hardship&quot;        &quot;scared&quot;          &quot;infirm&quot;         
-## [133] &quot;husbands&quot;        &quot;savagery&quot;        &quot;townspeople&quot;     &quot;mentally&quot;       
-## [137] &quot;punishing&quot;       &quot;disciplining&quot;    &quot;sins&quot;            &quot;savagely&quot;       
-## [141] &quot;escaping&quot;        &quot;teasing&quot;         &quot;sickness&quot;        &quot;distraught&quot;     
-## [145] &quot;captors&quot;         &quot;pregnant&quot;        &quot;oppress&quot;         &quot;spouse&quot;         
-## [149] &quot;indignity&quot;       &quot;intolerable&quot;     &quot;intimidated&quot;     &quot;forgiveness&quot;    
-## [153] &quot;countrymen&quot;      &quot;cursed&quot;          &quot;conscience&quot;      &quot;knowing&quot;        
-## [157] &quot;trauma&quot;          &quot;deserve&quot;         &quot;punishes&quot;        &quot;strangling&quot;     
-## [161] &quot;wickedness&quot;      &quot;sinful&quot;          &quot;punished&quot;        &quot;cruelties&quot;      
-## [165] &quot;helplessness&quot;    &quot;punish&quot;          &quot;disrespect&quot;      &quot;perceived&quot;      
-## [169] &quot;appalling&quot;       &quot;hysterical&quot;      &quot;bystander&quot;       &quot;disfigurement&quot;  
-## [173] &quot;treachery&quot;       &quot;homosexuals&quot;     &quot;debilitating&quot;    &quot;evils&quot;          
-## [177] &quot;taunts&quot;          &quot;vindictive&quot;      &quot;betrayal&quot;        &quot;tolerate&quot;       
-## [181] &quot;provokes&quot;        &quot;thoughtless&quot;     &quot;avenge&quot;          &quot;intimidate&quot;     
-## [185] &quot;feel&quot;            &quot;offend&quot;          &quot;despicable&quot;      &quot;needlessly&quot;     
-## [189] &quot;malnourished&quot;    &quot;sexually&quot;        &quot;tolerating&quot;      &quot;bodily&quot;         
-## [193] &quot;terrifying&quot;      &quot;passivity&quot;       &quot;abduct&quot;          &quot;betrays&quot;        
-## [197] &quot;trusting&quot;        &quot;frightening&quot;     &quot;expose&quot;          &quot;misguided&quot;      
-## [201] &quot;barbarity&quot;       &quot;severely&quot;        &quot;perceive&quot;        &quot;imprison&quot;       
-## [205] &quot;horrendous&quot;      &quot;depriving&quot;       &quot;sadistic&quot;        &quot;committing&quot;     
-## [209] &quot;unworthy&quot;        &quot;treated&quot;         &quot;unjust&quot;          &quot;slaughtering&quot;   
-## [213] &quot;painful&quot;         &quot;debilitated&quot;     &quot;scolding&quot;        &quot;enslave&quot;        
-## [217] &quot;aftereffects&quot;    &quot;disrespectful&quot;   &quot;victimised&quot;      &quot;awaken&quot;         
-## [221] &quot;humankind&quot;       &quot;resentful&quot;       &quot;suffocate&quot;       &quot;hypocritical&quot;   
-## [225] &quot;cowardly&quot;        &quot;fleeing&quot;         &quot;judgmental&quot;      &quot;ridicule&quot;       
-## [229] &quot;insecurities&quot;    &quot;complicit&quot;       &quot;misery&quot;          &quot;caretakers&quot;     
-## [233] &quot;detriment&quot;       &quot;physically&quot;      &quot;tenderly&quot;        &quot;habitually&quot;     
-## [237] &quot;malnutrition&quot;    &quot;punishment&quot;      &quot;misbehaving&quot;     &quot;villagers&quot;      
-## [241] &quot;emotionally&quot;     &quot;relatives&quot;       &quot;selfish&quot;         &quot;deserving&quot;      
-## [245] &quot;destitution&quot;     &quot;gravely&quot;         &quot;exposing&quot;        &quot;companionship&quot;  
-## [249] &quot;squeamish&quot;       &quot;brutally&quot;        &quot;guilt&quot;           &quot;imprisoning&quot;    
-## [253] &quot;orphaned&quot;        &quot;criminals&quot;       &quot;injustices&quot;      &quot;adolescents&quot;    
-## [257] &quot;stigma&quot;          &quot;disobedient&quot;     &quot;sacrificed&quot;      &quot;survivors&quot;      
-## [261] &quot;remorse&quot;         &quot;empathetic&quot;      &quot;wanton&quot;          &quot;insults&quot;        
-## [265] &quot;unsuspecting&quot;    &quot;enslaving&quot;       &quot;aggression&quot;      &quot;involuntarily&quot;  
-## [269] &quot;outweighs&quot;       &quot;ignorance&quot;       &quot;screams&quot;         &quot;addicted&quot;       
-## [273] &quot;ostracized&quot;      &quot;subordinates&quot;    &quot;immoral&quot;         &quot;caregivers&quot;     
-## [277] &quot;merciless&quot;       &quot;perpetrators&quot;    &quot;powerlessness&quot;   &quot;mutilating&quot;     
-## [281] &quot;ills&quot;            &quot;depredations&quot;    &quot;stab&quot;            &quot;affection&quot;      
-## [285] &quot;ill-treatment&quot;   &quot;ill&quot;             &quot;blinded&quot;         &quot;callously&quot;      
-## [289] &quot;insulted&quot;        &quot;manipulative&quot;    &quot;verbally&quot;        &quot;unintentionally&quot;
-## [293] &quot;distract&quot;        &quot;illness&quot;         &quot;ungrateful&quot;      &quot;deprivation&quot;    
-## [297] &quot;pretend&quot;         &quot;undermines&quot;      &quot;disfigured&quot;      &quot;impotent&quot;       
-## [301] &quot;cursing&quot;         &quot;inconvenience&quot;   &quot;motivates&quot;       &quot;witnessing&quot;     
-## [305] &quot;aggressors&quot;      &quot;jealousy&quot;        &quot;suffocating&quot;     &quot;children&quot;       
-## [309] &quot;sacrifices&quot;      &quot;jealous&quot;         &quot;hideous&quot;         &quot;ostracism&quot;      
-## [313] &quot;perverted&quot;       &quot;horrified&quot;       &quot;insensitive&quot;     &quot;confronting&quot;    
-## [317] &quot;illnesses&quot;       &quot;befriend&quot;        &quot;scourge&quot;         &quot;willful&quot;        
-## [321] &quot;repression&quot;      &quot;revenge&quot;         &quot;annoy&quot;           &quot;scarred&quot;        
-## [325] &quot;curses&quot;          &quot;throats&quot;         &quot;jailers&quot;         &quot;horribly&quot;       
-## [329] &quot;repressed&quot;       &quot;bigotry&quot;         &quot;excruciating&quot;    &quot;befriending&quot;    
-## [333] &quot;coerce&quot;          &quot;traumatic&quot;       &quot;ugliness&quot;        &quot;revulsion&quot;      
-## [337] &quot;exposes&quot;         &quot;patronizing&quot;     &quot;stepmother&quot;      &quot;newborns&quot;       
-## [341] &quot;indulging&quot;       &quot;promiscuous&quot;     &quot;confront&quot;        &quot;ministering&quot;    
-## [345] &quot;unconscionable&quot;  &quot;insidious&quot;       &quot;tenderness&quot;      &quot;indifference&quot;   
-## [349] &quot;gruesome&quot;        &quot;trampling&quot;       &quot;embittered&quot;      &quot;despise&quot;        
-## [353] &quot;cowardice&quot;       &quot;hopelessness&quot;    &quot;underlings&quot;      &quot;horrors&quot;        
-## [357] &quot;scold&quot;           &quot;atrocious&quot;       &quot;banish&quot;          &quot;persecutions&quot;   
-## [361] &quot;brainwashed&quot;     &quot;indignities&quot;     &quot;banishing&quot;       &quot;pretended&quot;      
-## [365] &quot;abhorrent&quot;       &quot;wrongs&quot;          &quot;genitals&quot;        &quot;counseled&quot;      
-## [369] &quot;atrocities&quot;      &quot;susceptible&quot;     &quot;ferocity&quot;        &quot;indifferent&quot;    
-## [373] &quot;autistic&quot;        &quot;deprivations&quot;    &quot;demoralizing&quot;    &quot;unfaithful&quot;     
-## [377] &quot;transgressions&quot;  &quot;brainwashing&quot;    &quot;ghastly&quot;         &quot;insufferable&quot;   
-## [381] &quot;taunting&quot;        &quot;pillage&quot;         &quot;believing&quot;       &quot;unconscious&quot;    
-## [385] &quot;afflicting&quot;      &quot;muggers&quot;</code></pre>
-<blockquote>
-<p>It is relatively uncontroversial to suggest that these words are
-representative of the concept of “care”.</p>
-</blockquote>
-</details>
-<ol start="8" style="list-style-type: decimal">
-<li>What does your answer to the previous question suggest about this
-dictionary expansion approach?</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<blockquote>
-<p>The idea here is that using the word-embeddings has allowed us to
-automatically expand the set of of words associated with a concept that
-we previously measured using a dictionary of terms that were manually
-selected. This means that we can use information about word similarity
-to supplement our existing measurement approaches. Whether this leads to
-performance improvements in terms of classification is the subject of
-the next part of the assignment.</p>
-</blockquote>
-</details>
 </div>
 <div id="classification-accuracy" class="section level2">
 <h2>Classification Accuracy</h2>
@@ -782,129 +540,21 @@ score the texts, and compare the dictionary scores to those human
 codings. If you have forgotten how to apply dictionaries, go back and
 look at the material from day 9.</p>
 <ol style="list-style-type: decimal">
-<li>Create a new dictionary which includes two categories. The first
+<li><p>Create a new dictionary which includes two categories. The first
 should be a <code>care_original_words</code> category, which contains
 only the words from the original care dictionary. The second should be a
 <code>care_embedding_words</code> which contains both the original care
-words and the top 500 words that you extracted in the last section.</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code># Create a dfm
-mft_dfm &lt;- mft_texts %&gt;% 
-  corpus(text_field = &quot;text&quot;) %&gt;% 
-  tokens(remove_punct = TRUE) %&gt;% 
-  dfm() %&gt;%
-  dfm_trim(min_termfreq = 5)
-
-# Create a care dictionary
-care_dictionary &lt;- dictionary(list(care_original = care_words,
-                                   care_embedding = c(top500[!top500%in%care_words], care_words)))</code></pre>
-</details>
-<ol start="2" style="list-style-type: decimal">
-<li>Use the dictionary you just constructed to score the scores in the
-<code>mft_texts</code> object. Create variables in that object that
+words and the top 500 words that you extracted in the last
+section.</p></li>
+<li><p>Use the dictionary you just constructed to score the scores in
+the <code>mft_texts</code> object. Create variables in that object that
 indicate whether a given dictionary classifies each text as a care text
 or not (i.e. classify a text as a care text if it contains any words
-from the relevant dictionary).</li>
-</ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code># Score the texts using the dictionaries
-care_dfm_dictionary &lt;- dfm_lookup(mft_dfm, care_dictionary)
-mft_texts$care_original &lt;- as.numeric(care_dfm_dictionary[,1]) &gt; 0
-mft_texts$care_embedding &lt;- as.numeric(care_dfm_dictionary[,2]) &gt; 0</code></pre>
-</details>
-<ol start="3" style="list-style-type: decimal">
-<li>Create a confusion matrix which compares the human annotations to
+from the relevant dictionary).</p></li>
+<li><p>Create a confusion matrix which compares the human annotations to
 the scores generated by the dictionary analysis. Which performs best,
-the original dictionary or the word-embedding approach?</li>
+the original dictionary or the word-embedding approach?</p></li>
 </ol>
-<details>
-<summary>
-Reveal code
-</summary>
-<pre class="r"><code># Calculate confusion matrix
-care_original_confusion &lt;- table( 
-  dictionary = mft_texts$care_original &gt; 0,
-  human_coding = mft_texts$care)
-
-care_embedding_confusion &lt;- table( 
-  dictionary = mft_texts$care_embedding &gt; 0,
-  human_coding = mft_texts$care)
-
-# Calculate performance statistics
-library(caret)
-confusionMatrix(care_original_confusion, positive = &quot;TRUE&quot;)</code></pre>
-<pre><code>## Confusion Matrix and Statistics
-## 
-##           human_coding
-## dictionary FALSE  TRUE
-##      FALSE 11304  2621
-##      TRUE   1842  2119
-##                                           
-##                Accuracy : 0.7505          
-##                  95% CI : (0.7441, 0.7568)
-##     No Information Rate : 0.735           
-##     P-Value [Acc &gt; NIR] : 1.219e-06       
-##                                           
-##                   Kappa : 0.3239          
-##                                           
-##  Mcnemar&#39;s Test P-Value : &lt; 2.2e-16       
-##                                           
-##             Sensitivity : 0.4470          
-##             Specificity : 0.8599          
-##          Pos Pred Value : 0.5350          
-##          Neg Pred Value : 0.8118          
-##              Prevalence : 0.2650          
-##          Detection Rate : 0.1185          
-##    Detection Prevalence : 0.2215          
-##       Balanced Accuracy : 0.6535          
-##                                           
-##        &#39;Positive&#39; Class : TRUE            
-## </code></pre>
-<pre class="r"><code>confusionMatrix(care_embedding_confusion, positive = &quot;TRUE&quot;)</code></pre>
-<pre><code>## Confusion Matrix and Statistics
-## 
-##           human_coding
-## dictionary FALSE  TRUE
-##      FALSE 10115  1764
-##      TRUE   3031  2976
-##                                           
-##                Accuracy : 0.7319          
-##                  95% CI : (0.7254, 0.7384)
-##     No Information Rate : 0.735           
-##     P-Value [Acc &gt; NIR] : 0.8265          
-##                                           
-##                   Kappa : 0.366           
-##                                           
-##  Mcnemar&#39;s Test P-Value : &lt;2e-16          
-##                                           
-##             Sensitivity : 0.6278          
-##             Specificity : 0.7694          
-##          Pos Pred Value : 0.4954          
-##          Neg Pred Value : 0.8515          
-##              Prevalence : 0.2650          
-##          Detection Rate : 0.1664          
-##    Detection Prevalence : 0.3358          
-##       Balanced Accuracy : 0.6986          
-##                                           
-##        &#39;Positive&#39; Class : TRUE            
-## </code></pre>
-<blockquote>
-<p>In this instance, the accuracy of our predictions decreases slightly
-when incorporating the words from the word-embedding similarity scores,
-but the sensitivity of the classification increases significantly. This
-suggests that the additional words are substantially improving our
-ability to identify texts that express the concept of care, albeit at
-the cost of also introducing a larger number of false positive
-results.</p>
-</blockquote>
-</details>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr />
